@@ -18,11 +18,20 @@ Then compile the sample code in `src/main/test`:
 $ sbt test:compile
 ```
 
-This will result in a CSV file being created:
+This will result in a CSV file:
 
 ```
-$ cat ast.csv
+$ cat stats.csv
+Select,144
+TypeTree,87
+Apply,59
+Ident,51
+Literal,47
+This,36
+...
 ```
+
+which contains the AST entries with their respective counts in the compilation unit.
 
 ```
 > ;clean;package;test:compile
