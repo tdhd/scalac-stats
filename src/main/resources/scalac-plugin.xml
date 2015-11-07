@@ -1,0 +1,4 @@
+<plugin>
+    <name>stats</name>
+    <classname>io.github.tdhd.scalac.plugin.StatsPlugin</classname>
+</plugin>
