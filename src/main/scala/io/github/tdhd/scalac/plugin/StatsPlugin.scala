@@ -332,7 +332,7 @@ class StatsPlugin(val global: Global) extends Plugin {
             }
         }
         traverser.traverse(tree)
-        dumpASTStats(traverser.codes, "ast.csv")
+        dumpASTStats(traverser.codes, "stats.csv")
       }
     }
 
