@@ -304,35 +304,35 @@ class StatsPlugin(val global: Global) extends Plugin {
     class StatsPhase(prev: Phase) extends StdPhase(prev) {
       override def name = StatsPlugin.this.name
 
-      def apply(unit: CompilationUnit): Unit = traverseAST(unit.body)
+      def apply(unit: CompilationUnit): Unit = traverseAST(unit)
 
-      private def dumpASTStats(codes: List[Option[Int]], fileName: String): Unit = {
-        val res = codes.flatten.groupBy(x => x).toSeq.map {
-          case (code, codes) => (code.toName, codes.length)
-        }.sortBy(-_._2)
-        val nAST = res.foldLeft(0) {
-          case (l, (_, count)) => l + count
-        }
-        println(s"Parsed through $nAST AST entries in ${res.length} distinct AST types")
-        val r = res.map {
-          case (name, count) => s"$name,$count"
-        }.mkString("\n")
-        scala.tools.nsc.io.File(fileName).writeAll(r)
+      private def compilationUnitCSV(codes: List[String], fileName: String): Unit = {
+        val csv = codes
+          .filter(symbols.contains)
+          .sortBy(_.hashCode)
+          .groupBy(e ⇒ e)
+          .map { case (n, groupedNames) ⇒
+            (n, groupedNames.length)
+          }.map { case (n, count) ⇒
+            s"$count"
+          }.mkString(",")
+
+        scala.tools.nsc.io.File(fileName).writeAll(csv + "\n")
       }
 
-      private def traverseAST(tree: Tree): Unit = {
+      private def traverseAST(unit: CompilationUnit): Unit = {
         val traverser = new Traverser {
-          var codes = List.empty[Option[Int]]
+          var codes = List.empty[String]
 
-          override def traverse(tree: Tree): Unit =
-            tree match {
-              case generic =>
-                codes = generic.shortClass.toCode :: codes
-                super.traverse(tree)
-            }
+          override def traverse(tree: Tree): Unit = tree match {
+            case generic =>
+              codes = generic.shortClass :: codes
+              super.traverse(tree)
+          }
         }
-        traverser.traverse(tree)
-        dumpASTStats(traverser.codes, "stats.csv")
+        traverser.traverse(unit.body)
+        val fileName = unit.source.file.name + java.util.UUID.randomUUID.toString + ".csv"
+        compilationUnitCSV(traverser.codes, fileName)
       }
     }
 
