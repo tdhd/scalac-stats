@@ -323,13 +323,19 @@ class StatsPlugin(val global: Global) extends Plugin {
       private def traverseAST(unit: CompilationUnit): Unit = {
         val traverser = new Traverser {
           var codes = List.empty[String]
+          var nodes = List.empty[Tree]
 
           override def traverse(tree: Tree): Unit = tree match {
-            case generic =>
+            case generic ⇒
               codes = generic.shortClass :: codes
+              nodes = generic :: nodes
               super.traverse(tree)
           }
         }
+
+//        val K = new ConvTreeKernel(unit.body, unit.body)
+//        println(K.similarity)
+
         traverser.traverse(unit.body)
         val fileName = unit.source.file.name + java.util.UUID.randomUUID.toString + ".csv"
         compilationUnitCSV(traverser.codes, fileName)
