@@ -330,6 +330,10 @@ class StatsPlugin(val global: Global) extends Plugin {
               super.traverse(tree)
           }
         }
+        val K = new ConvTreeKernel(unit.body, unit.body)
+        println(K.allNodes(K.first).map(_.shortClass))
+        println(K.similarity)
+
         traverser.traverse(unit.body)
         val fileName = unit.source.file.name + java.util.UUID.randomUUID.toString + ".csv"
         compilationUnitCSV(traverser.codes, fileName)
