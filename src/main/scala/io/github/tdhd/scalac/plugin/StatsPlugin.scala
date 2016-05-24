@@ -1,5 +1,7 @@
 package io.github.tdhd.scalac.plugin
 
+import io.github.tdhd.scalac.plugin.kernels.ConvNLP
+
 import scala.tools.nsc.plugins.{Plugin, PluginComponent}
 import scala.tools.nsc.{Global, Phase}
 
@@ -333,10 +335,11 @@ class StatsPlugin(val global: Global) extends Plugin {
           }
         }
 
-//        val K = new ConvTreeKernel(unit.body, unit.body)
-//        println(K.similarity)
-
         traverser.traverse(unit.body)
+        println(traverser.codes.size)
+        val K = new ConvNLP(unit.body, unit.body.children.head)
+        println(K.similarity)
+
         val fileName = unit.source.file.name + java.util.UUID.randomUUID.toString + ".csv"
         compilationUnitCSV(traverser.codes, fileName)
       }
